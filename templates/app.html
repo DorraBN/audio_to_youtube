@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Audio to YouTube</title>
+    <link rel="stylesheet" href="/static/app.css">
+    <style>
+        .add-image-btn {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            font-size: 20px;
+            font-weight: bold;
+            text-align: center;
+            line-height: 40px;
+            cursor: pointer;
+        }
+        .add-image-btn:hover {
+            background-color: #0056b3;
+        }
+        .upload-btn {
+            background-color: #ff0000;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .upload-btn:hover {
+            background-color: #cc0000;
+        }
+    </style>
+    <script src="https://apis.google.com/js/api.js"></script>
+    <script>
+        let GoogleAuth;
+
+        // Initialize the Google API client and OAuth2
+        function start() {
+            gapi.load('client:auth2', function() {
+                gapi.client.init({
+                    'apiKey': 'YOUR_API_KEY', // Replace with your API key
+                    'clientId': 'YOUR_CLIENT_ID', // Replace with your OAuth 2.0 Client ID
+                    'scope': 'https://www.googleapis.com/auth/youtube.upload',
+                }).then(function() {
+                    GoogleAuth = gapi.auth2.getAuthInstance();
+                    console.log('Google API initialized');
+                }).catch(function(error) {
+                    console.error('Error initializing Google API:', error);
+                });
+            });
+        }
+
+        // Handle the sign-in process
+        function handleAuthClick() {
+            GoogleAuth.signIn().then(function() {
+                alert("Authenticated successfully!");
+            }).catch(function(error) {
+                alert("Authentication failed: " + error.error);
+            });
+        }
+
+        // Upload video to YouTube
+        function uploadToYouTube() {
+            const videoFile = document.querySelector("input[name='audio']").files[0]; // Get the audio file
+            const imageFile = document.querySelector("input[name='images']").files[0]; // Get the image file
+            const videoTitle = document.querySelector("input[name='video_name']").value;
+            const videoDescription = document.querySelector("textarea[name='description']").value;
+
+            if (!videoFile || !imageFile) {
+                alert('Please select both audio and image files.');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('audio', videoFile);
+            formData.append('image', imageFile);
+            formData.append('title', videoTitle);
+            formData.append('description', videoDescription);
+
+            // Mock URL for YouTube API, replace with actual upload endpoint and logic
+            const videoUrl = 'https://www.googleapis.com/upload/youtube/v3/videos';
+
+            // Ensure the API client is initialized before making the request
+            if (gapi.client && gapi.client.youtube) {
+                const request = gapi.client.youtube.videos.insert({
+                    'part': 'snippet,status',
+                    'resource': {
+                        'snippet': {
+                            'title': videoTitle,
+                            'description': videoDescription,
+                            'tags': ['audio', 'mp3', 'upload'],
+                        },
+                        'status': {
+                            'privacyStatus': 'public'
+                        }
+                    },
+                    'media': {
+                        'body': videoFile // Use the file selected by the user
+                    }
+                });
+
+                request.execute(function(response) {
+                    console.log(response);
+                    if (response.error) {
+                        alert('Error uploading video: ' + response.error.message);
+                    } else {
+                        alert('Video uploaded successfully!');
+                    }
+                });
+            } else {
+                alert('API client not initialized yet.');
+            }
+        }
+
+        // Add more image fields
+        function addImageField() {
+            const newField = document.createElement("input");
+            newField.type = "file";
+            newField.name = "images";
+            newField.accept = "image/*";
+            const form = document.getElementById("imageFields");
+            form.appendChild(newField);
+            form.appendChild(document.createElement("br"));
+        }
+    </script>
+</head>
+<body>
+    <h1>Convert Audio and Image to YouTube Video</h1>
+    <form id="uploadForm" action="/" method="post" enctype="multipart/form-data">
+        <label for="title">Video Title:</label>
+        <input type="text" name="video_name" placeholder="Nom de la vidéo" required>
+
+        <label for="description">Video Description:</label>
+        <textarea name="description"></textarea><br><br>
+
+        <label for="audio">Audio File:</label>
+        <input type="file" name="audio" required><br><br>
+
+        <label for="images">Image Files:</label>
+        <div id="imageFields">
+            <input type="file" name="images" accept="image/*"><br><br> <!-- Default image field -->
+        </div>
+        <button type="button" class="add-image-btn" onclick="addImageField()">+</button><br><br>
+
+        <button type="submit" class="btn">Create the Video</button>
+    </form>
+
+    <!-- Upload to YouTube Button -->
+    <button class="upload-btn" onclick="uploadToYouTube()">Upload to YouTube</button>
+
+    {% if video_filename %}
+        <p>Votre vidéo est prête ! <a href="{{ url_for('download_video', video_filename=video_filename) }}">Télécharger la vidéo</a></p>
+    {% endif %}
+
+    <script async defer onload="start()" src="https://apis.google.com/js/client.js"></script>
+</body>
+</html>
