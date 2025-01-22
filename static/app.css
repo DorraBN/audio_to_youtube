@@ -67,7 +67,6 @@ textarea:focus {
     background-color: #0056b3;
 }
 
-/* Add spacing between elements */
 br {
-    display: none; /* Hide the <br> tags */
+    display: none; 
 }
