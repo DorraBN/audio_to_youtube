@@ -182,12 +182,9 @@ def display_video(video_filename):
     return render_template("video.html", video_url=video_url, video_filename=video_filename)
 
 # Redirection OAuth2
-# Redirection OAuth2
 @app.route("/oauth2callback")
 def oauth2callback():
     flow = InstalledAppFlow.from_client_secrets_file(CLIENT_SECRETS_FILE, SCOPES)
-    
-    # Utiliser l'URL dynamique
     redirect_uri = f"{request.scheme}://{request.host}/oauth2callback"
     flow.redirect_uri = redirect_uri
 
