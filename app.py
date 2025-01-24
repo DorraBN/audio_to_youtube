@@ -122,11 +122,16 @@ class MP3ToMP4:
     def create_video(self):
         selected_images = self.get_selected_images()
         gif_path = os.path.join(self.folder_path, "temp.gif")
+
+        # Calculer la durée par image en ms et la limiter
+        duration_per_image = self.duration * 1000 // len(selected_images)
+        duration_per_image = min(duration_per_image, 65535)  # Limiter la durée à 65535ms
+
         selected_images[0].save(
             gif_path,
             save_all=True,
             append_images=selected_images[1:],
-            duration=self.duration * 1000 // len(selected_images),
+            duration=duration_per_image,
             loop=0
         )
 
@@ -143,10 +148,8 @@ def index():
         audio = request.files["audio"]
         if not audio.filename.endswith('.mp3'):
             return "Le fichier doit être au format MP3", 400
-
         audio_folder = os.path.join(app.config['UPLOAD_FOLDER'], 'audio')
         os.makedirs(audio_folder, exist_ok=True)
-
         audio_path = os.path.join(audio_folder, audio.filename)
         audio.save(audio_path)
 
@@ -175,6 +178,7 @@ def index():
 
     return render_template("app.html")
 
+
 # Route pour afficher la vidéo générée
 @app.route("/video/<video_filename>")
 def display_video(video_filename):
@@ -190,8 +194,6 @@ def oauth2callback():
 
     auth_url, _ = flow.authorization_url(prompt='consent')
     return redirect(auth_url)
-
-
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))
