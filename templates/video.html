@@ -3,23 +3,56 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Generated video</title>
-    <link rel="stylesheet" href="/static/app.css">
+    <title>{{ video_title }}</title>
+ 
+    <style>
+        .upload-btn {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        video{
+            margin-left: 350px;
+        }
+        .upload-btn:hover {
+            background-color: #45a049;
+        }
+        .back-btn {
+            display: block;
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #008CBA;
+            color: white;
+            text-align: center;
+            border-radius: 5px;
+            text-decoration: none;
+            width: 350px;
+            margin-left: 580px;
+        }
+
+        .back-btn:hover {
+            background-color: #005f6b;
+        }
+
+    </style>
 </head>
 <body>
-    <h1>Generated video</h1>
+    <h1 style="margin-left:590px">{{ video_filename }}</h1>
+
     <video width="800" height="600" controls>
         <source src="{{ video_url }}" type="video/mp4">
         Votre navigateur ne supporte pas la vidéo HTML5.
     </video>
-    <!-- Formulaire pour téléverser sur YouTube -->
     <form action="/upload_youtube/{{ video_filename }}" method="Post">
-        <input type="hidden" name="title" value="Titre par défaut">
-        <input type="hidden" name="description" value="Description par défaut">
         <button type="submit" class="upload-btn">Upload to YouTube</button>
     </form>
-
-    <br>
-    <a href="/">Back TO creation Page</a>
+    <a href="/" class="back-btn">Back to Creation Page</a>
 </body>
 </html>
