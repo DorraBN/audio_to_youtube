@@ -5,55 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Audio to YouTube</title>
     <link rel="stylesheet" href="/static/app.css">
-    <style>
-        .upload-btn {
-            background-color: #ff0000;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            padding: 10px 20px;
-            font-size: 16px;
-            cursor: pointer;
-        }
-        .upload-btn:hover {
-            background-color: #cc0000;
-        }
-        #imagePreview {
-            margin-top: 20px;
-            text-align: center;
-            display: flex;
-            flex-wrap: wrap;
-        }
-        #imagePreview img {
-            max-width: 150px;
-            height: 150px;
-            border-radius: 5px;  
-            object-fit: cover;  
-            border: 2px solid #ddd;
-            margin: 5px;
-        }
-        .delete-btn {
-            position: absolute;
-            top: 5px;
-            right: 5px;
-            background-color: red;
-            color: white;
-            border: none;
-            border-radius: 50%;
-            padding: 5px;
-            cursor: pointer;
-        }
-        .image-container {
-            position: relative;
-            display: inline-block;
-        }
-        #imageName {
-            margin-top: 10px;
-            font-size: 16px;
-            color: #333;
-            text-align: center;
-        }
-    </style>
+ 
 </head>
 <body>
     <h1>Convert Audio and Image to YouTube Video</h1>
@@ -71,7 +23,6 @@
         <input type="file" name="images" id="imageInput" multiple onchange="displayImagePreview(event)">
         <div id="imagePreview"></div>
 
-        
         {% if image_urls %}
             <h2>Uploaded Images:</h2>
             <div id="uploadedImages">
@@ -86,8 +37,8 @@
         <button type="submit" class="btn">Create the Video</button>
     </form>
 
+    
     <script>
-       
         function displayImagePreview(event) {
             const imagePreview = document.getElementById('imagePreview');
             const files = event.target.files;
@@ -107,10 +58,7 @@
                     deleteBtn.textContent = 'X';
                     deleteBtn.classList.add('delete-btn');
                     deleteBtn.onclick = function() {
-                    
                         imgContainer.remove();
-
-                       
                         const fileInput = document.querySelector('input[name="images"]');
                         const newFiles = Array.from(fileInput.files).filter((_, idx) => idx !== index);
                         const dataTransfer = new DataTransfer();
