@@ -10,7 +10,6 @@ from googleapiclient.http import MediaFileUpload
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 import time
-import threading
 
 app = Flask(__name__)
 
@@ -45,20 +44,21 @@ def get_authenticated_service():
         print(f"Erreur lors de la connexion à l'API YouTube : {e}")
         return None
 
-# Fonction d'upload en arrière-plan avec threading
-def upload_video_in_thread(video_filename, title, description):
+@app.route("/upload_youtube/<video_filename>", methods=["POST"])
+def upload_video(video_filename):
     try:
+        title = request.form.get("title", "Titre par défaut")
+        description = request.form.get("description", "Description par défaut")
+
         video_path = os.path.join(app.config['UPLOAD_FOLDER'], video_filename)
 
         if not os.path.exists(video_path):
-            print("Le fichier vidéo n'existe pas.")
-            return
+            return "Le fichier vidéo n'existe pas.", 400
 
         youtube = get_authenticated_service()
 
         if youtube is None:
-            print("Erreur d'authentification YouTube. Veuillez vous reconnecter.")
-            return
+            return "Erreur d'authentification YouTube. Veuillez vous reconnecter.", 500
 
         body = {
             'snippet': {
@@ -83,24 +83,13 @@ def upload_video_in_thread(video_filename, title, description):
         print("Réponse YouTube :", response)
 
         if 'id' in response:
-            print(f"Vidéo {response['id']} uploadée avec succès!")
+            return f"Vidéo {response['id']} uploadée avec succès!"
         else:
-            print("Une erreur est survenue lors de l'upload de la vidéo.")
+            return "Une erreur est survenue lors de l'upload de la vidéo.", 500
 
     except Exception as e:
         print(f"Erreur lors de l'upload de la vidéo : {e}")
-
-@app.route("/upload_youtube/<video_filename>", methods=["POST"])
-def upload_video(video_filename):
-    title = request.form.get("title", "Titre par défaut")
-    description = request.form.get("description", "Description par défaut")
-
-    # Démarrer un thread pour l'upload vidéo
-    upload_thread = threading.Thread(target=upload_video_in_thread, args=(video_filename, title, description))
-    upload_thread.start()
-
-    # Réponse immédiate à l'utilisateur
-    return jsonify({"message": "L'upload a été lancé en arrière-plan."}), 202
+        return f"Une erreur est survenue : {str(e)}", 500
 
 # Classe pour transformer un fichier MP3 en vidéo MP4 avec des images
 class MP3ToMP4:
@@ -203,8 +192,12 @@ def oauth2callback():
 
 @app.route("/get_progress")
 def get_progress():
+  
     progress = int(time.time()) % 100  
     return jsonify({"progress": progress})
+
+
+
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))
