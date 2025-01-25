@@ -1,15 +1,5 @@
 
-body {
-    font-family: Arial, sans-serif;
-    background-color: #f4f4f9;
-    margin: 0;
-    padding: 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    flex-direction: column;
-}
+
 
 h1 {
     font-size: 2rem;
@@ -18,15 +8,6 @@ h1 {
     text-align: center;
 }
 
-/* Form styling */
-form {
-    background-color: #fff;
-    padding: 30px;
-    border-radius: 8px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    width: 100%;
-    max-width: 500px;
-}
 
 label {
     font-size: 1rem;
@@ -64,7 +45,7 @@ textarea:focus {
 }
 
 .btn:hover {
-    background-color: #0056b3;
+    background-color: #300432;
 }
 
 br {
@@ -82,20 +63,7 @@ br {
 .upload-btn:hover {
     background-color: #cc0000;
 }
-#imagePreview {
-    margin-top: 20px;
-    text-align: center;
-    display: flex;
-    flex-wrap: wrap;
-}
-#imagePreview img {
-    max-width: 150px;
-    height: 150px;
-    border-radius: 5px;  
-    object-fit: cover;  
-    border: 2px solid #ddd;
-    margin: 5px;
-}
+
 .delete-btn {
     position: absolute;
     top: 5px;
@@ -107,10 +75,7 @@ br {
     padding: 5px;
     cursor: pointer;
 }
-.image-container {
-    position: relative;
-    display: inline-block;
-}
+
 #imageName {
     margin-top: 10px;
     font-size: 16px;
