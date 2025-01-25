@@ -24,11 +24,9 @@ SCOPES = ["https://www.googleapis.com/auth/youtube.upload"]
 def get_authenticated_service():
     credentials = None
 
-    # Charger les credentials si le fichier token.json existe
     if os.path.exists("token.json"):
         credentials = Credentials.from_authorized_user_file("token.json", SCOPES)
 
-    # Rafraîchir ou ré-authentifier si les credentials sont expirés ou absents
     if not credentials or not credentials.valid:
         if credentials and credentials.expired and credentials.refresh_token:
             credentials.refresh(Request())
@@ -36,7 +34,6 @@ def get_authenticated_service():
             flow = InstalledAppFlow.from_client_secrets_file(CLIENT_SECRETS_FILE, SCOPES)
             credentials = flow.run_local_server(port=0)
 
-        # Sauvegarder les nouveaux credentials dans token.json
         with open("token.json", "w") as token_file:
             token_file.write(credentials.to_json())
 
@@ -47,7 +44,6 @@ def get_authenticated_service():
         print(f"Erreur lors de la connexion à l'API YouTube : {e}")
         return None
 
-# Route pour l'upload de vidéo vers YouTube
 @app.route("/upload_youtube/<video_filename>", methods=["POST"])
 def upload_video(video_filename):
     try:
@@ -83,7 +79,6 @@ def upload_video(video_filename):
             media_body=media_body
         )
 
-        # Exécution de l'upload
         response = insert_request.execute()
         print("Réponse YouTube :", response)
 
