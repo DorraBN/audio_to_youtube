@@ -45,6 +45,7 @@ def get_authenticated_service():
         return None
 
 @app.route("/upload_youtube/<video_filename>", methods=["POST"])
+@app.route("/upload_youtube/<video_filename>", methods=["POST"])
 def upload_video(video_filename):
     try:
         title = request.form.get("title", "Titre par défaut")
@@ -72,7 +73,7 @@ def upload_video(video_filename):
             }
         }
 
-        media_body = MediaFileUpload(video_path, chunksize=256 * 1024, resumable=True)  # Utiliser un chunk plus petit
+        media_body = MediaFileUpload(video_path, chunksize=256 * 1024, resumable=True)
         insert_request = youtube.videos().insert(
             part="snippet,status",
             body=body,
@@ -83,7 +84,9 @@ def upload_video(video_filename):
         while response is None:
             status, response = insert_request.next_chunk()
             if status:
-                print(f"Upload progress: {int(status.progress() * 100)}%")
+                progress = int(status.progress() * 100)
+                print(f"Upload progress: {progress}%")
+                return jsonify({"progress": progress})  # Envoyer un retour de progrès en temps réel
         
         print("Réponse YouTube :", response)
 
