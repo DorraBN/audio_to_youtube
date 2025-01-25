@@ -281,33 +281,25 @@ body {
     font-weight: 600;
     margin-top: 30px;
   }
-  
   .subtitle {
     color: #eee;
     font-family: sans-serif;
-    font-size: 16px;
+    font-size: 19px;
     font-weight: 600;
     margin-top: 10px;
-  }
-  
-  .input-container {
+}
+
+.input-container {
     height: 50px;
     position: relative;
     width: 50%;
     margin-left: 180px;
-  }
-  
-  .input-container {
-    display: flex; /* Utilisation de flexbox */
-    align-items: center; /* Aligner verticalement les éléments */
-    height: 50px;
-    position: relative;
-    width: 50%;
-    margin-left: 180px;
+    display: flex;
+    align-items: center;
 }
 
 .ic1, .ic2 {
-    margin-right: 10px; /* Espace entre l'icône et le champ de saisie */
+    margin-right: 10px;
 }
 
 .input {
@@ -337,6 +329,7 @@ body {
 
 .cut-short {
     width: 50px;
+    font-size: 18px;
     height: 30px;
 }
 
@@ -360,6 +353,7 @@ body {
     transform-origin: 0 50%;
     transition: transform 200ms, color 200ms;
     top: 20px;
+    font-size: 18px;  /* Ensure the font size is consistent */
 }
 
 .input:focus ~ .placeholder,
@@ -374,6 +368,7 @@ body {
 .input:focus ~ .placeholder {
     color: #dc2f55;
 }
+
 .terms {
             margin-top: 20px;
             font-size: 12px;

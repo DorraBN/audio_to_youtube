@@ -190,6 +190,8 @@ def display_video(video_filename):
     video_url = url_for('static', filename=f'videos/{video_filename}')
     return render_template("app.html", video_url=video_url, video_filename=video_filename)
 
+
+
 @app.route("/oauth2callback")
 def oauth2callback():
     flow = InstalledAppFlow.from_client_secrets_file(CLIENT_SECRETS_FILE, SCOPES)
@@ -197,7 +199,7 @@ def oauth2callback():
     flow.redirect_uri = redirect_uri
 
     auth_url, _ = flow.authorization_url(prompt='consent')
-    return render_template("app.html", oauth_url=auth_url)
+    return jsonify({"oauth_url": auth_url})
 
 @app.route("/get_progress")
 def get_progress():

@@ -35,26 +35,28 @@
         
         
         <div class="container">
-           
-            <h1>Convert MP3 to Video with an Image</h1>
-            <p>Please upload an image and an MP3 file to create your video.</p>
+            <img src="https://www.freeiconspng.com/uploads/hd-youtube-logo-png-transparent-background-20.png"  style="width: 90px;">
+            <h1 style="font-size: 35px;font-weight: 700;">Convert MP3 to Video with an Image</h1>
+            <p>Please upload an image and an MP3 file to create your video.</p><br>
             <form id="uploadForm" action="/" method="post" enctype="multipart/form-data">
                 <div class="input-container ic2">
+                    <i class="fa fa-video" style="margin-right: 10px;"></i>
+                    <input type="text" name="video_name" class="input" required />
+                    <div class="cut cut-short1"></div>
+                    <label for="video_name" class="placeholder">Video Name</label>
+                </div>
+                
+                <br><br>
+                
 
-    <i class="fa fa-video" style="margin-right: 10px;"></i>
-    <input type="text" name="video_name" class="input" required />
-    <div class="cut cut-short"></div>
-    <label for="video_name" class="placeholder">Name</label>
-</div>
-<br><br>
-<div class="input-container ic2">
-
-    <i class="fa fa-pencil-alt" style="margin-right: 10px;"></i>
-    <textarea name="description" class="input"></textarea><br><br>
-    <div class="cut cut-short1"></div>
-    <label for="description" class="placeholder">Video Description:</label>
-</div>
-
+                
+                <div class="input-container ic2">
+                    <i class="fa fa-pencil-alt" style="margin-right: 10px;"></i>
+                    <textarea name="description" class="input"></textarea><br><br>
+                    <div class="cut cut-short1"></div>
+                    <label for="description" class="placeholder">Video Description</label>
+                </div>
+                
         
             
 
@@ -107,14 +109,46 @@
             </div>
     
             <div class="action-buttons">
-            <form action="/upload_youtube/{{ video_filename }}" method="Post">
-
-                <button type="submit" disabled class="uploadtoy" id="uploadtoy">
-                   
-                    Upload to YouTube
-                </button> 
+                <form action="/upload_youtube/{{ video_filename }}" method="POST" id="uploadForm">
+                    <button type="submit" disabled class="uploadtoy" id="uploadtoy">
+                        Upload to YouTube
+                    </button> 
+                </form>
                 
-            </form></div>
+                <script>
+                    document.getElementById("uploadtoy").addEventListener("click", function(event) {
+                        // Empêcher le soumission immédiate du formulaire
+                        event.preventDefault();
+                
+                        // Récupérer l'URL OAuth de la route Flask
+                        fetch("/oauth2callback")
+                            .then(response => response.json())
+                            .then(data => {
+                                var oauthUrl = data.oauth_url;
+                
+                                // Ouvrir une fenêtre pop-up pour l'authentification OAuth
+                                var width = 600;
+                                var height = 600;
+                                var left = (window.innerWidth - width) / 2;
+                                var top = (window.innerHeight - height) / 2;
+                
+                                var oauthWindow = window.open(oauthUrl, "Google OAuth", `width=${width},height=${height},top=${top},left=${left}`);
+                
+                                // Vérifier si l'utilisateur a terminé l'authentification
+                                var checkOAuth = setInterval(function() {
+                                    if (oauthWindow.closed) {
+                                        clearInterval(checkOAuth);
+                                        // Une fois la fenêtre fermée, vous pouvez soumettre le formulaire
+                                        document.getElementById("uploadForm").submit();
+                                    }
+                                }, 1000);
+                            })
+                            .catch(error => {
+                                console.error("Erreur lors de la récupération de l'URL OAuth:", error);
+                            });
+                    });
+                </script>
+                </div>
             
         </div>
     </div>
