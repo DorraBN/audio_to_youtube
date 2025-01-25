@@ -123,11 +123,16 @@ class MP3ToMP4:
     def create_video(self):
         selected_images = self.get_selected_images()
         gif_path = os.path.join(self.folder_path, "temp.gif")
+
+        # Calculer la durée par image en ms et la limiter
+        duration_per_image = self.duration * 1000 // len(selected_images)
+        duration_per_image = min(duration_per_image, 65535)  # Limiter la durée à 65535ms
+
         selected_images[0].save(
             gif_path,
             save_all=True,
             append_images=selected_images[1:],
-            duration=self.duration * 1000 // len(selected_images),
+            duration=duration_per_image,
             loop=0
         )
 
@@ -188,7 +193,8 @@ def oauth2callback():
     flow.redirect_uri = redirect_uri
 
     auth_url, _ = flow.authorization_url(prompt='consent')
-    return redirect(auth_url)
+    return render_template("app.html", oauth_url=auth_url)
+
 @app.route("/get_progress")
 def get_progress():
   
