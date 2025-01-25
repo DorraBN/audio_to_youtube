@@ -10,6 +10,7 @@ from googleapiclient.http import MediaFileUpload
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 import time
+from threading import Thread
 
 app = Flask(__name__)
 
@@ -44,7 +45,6 @@ def get_authenticated_service():
         print(f"Erreur lors de la connexion à l'API YouTube : {e}")
         return None
 
-@app.route("/upload_youtube/<video_filename>", methods=["POST"])
 @app.route("/upload_youtube/<video_filename>", methods=["POST"])
 def upload_video(video_filename):
     try:
@@ -146,7 +146,11 @@ class MP3ToMP4:
         final_video = video.set_audio(audio)
         final_video.write_videofile(self.video_path_name, fps=30)
 
-# Route principale pour la création de vidéo MP3 + images
+# Fonction pour créer la vidéo en arrière-plan
+def create_video_in_background(folder_path, audio_path, video_path_name, selected_images):
+    mp3_to_mp4 = MP3ToMP4(folder_path, audio_path, video_path_name, selected_images)
+    mp3_to_mp4.combine_audio()
+
 @app.route("/", methods=["GET", "POST"])
 def index():
     if request.method == "POST":
@@ -172,14 +176,11 @@ def index():
 
         video_name = request.form['video_name']
         video_filename = f"{video_name}.mp4"
-
         video_path_name = os.path.join(app.config['UPLOAD_FOLDER'], video_filename)
 
-        try:
-            mp3_to_mp4 = MP3ToMP4(folder_path, audio_path, video_path_name, image_paths)
-            mp3_to_mp4.combine_audio()
-        except ValueError as e:
-            return str(e), 400
+        # Exécution de la création de la vidéo en arrière-plan
+        thread = Thread(target=create_video_in_background, args=(folder_path, audio_path, video_path_name, image_paths))
+        thread.start()
 
         return redirect(url_for('display_video', video_filename=video_filename))
 
@@ -201,12 +202,9 @@ def oauth2callback():
 
 @app.route("/get_progress")
 def get_progress():
-  
-    progress = int(time.time()) % 100  
+    # Simuler la progression (par exemple, basé sur le temps)
+    progress = int(time.time()) % 100
     return jsonify({"progress": progress})
-
-
-
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))
