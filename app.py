@@ -72,14 +72,19 @@ def upload_video(video_filename):
             }
         }
 
-        media_body = MediaFileUpload(video_path, chunksize=-1, resumable=True)
+        media_body = MediaFileUpload(video_path, chunksize=256 * 1024, resumable=True)  # Utiliser un chunk plus petit
         insert_request = youtube.videos().insert(
             part="snippet,status",
             body=body,
             media_body=media_body
         )
 
-        response = insert_request.execute()
+        response = None
+        while response is None:
+            status, response = insert_request.next_chunk()
+            if status:
+                print(f"Upload progress: {int(status.progress() * 100)}%")
+        
         print("Réponse YouTube :", response)
 
         if 'id' in response:
@@ -90,6 +95,7 @@ def upload_video(video_filename):
     except Exception as e:
         print(f"Erreur lors de l'upload de la vidéo : {e}")
         return f"Une erreur est survenue : {str(e)}", 500
+
 
 # Classe pour transformer un fichier MP3 en vidéo MP4 avec des images
 class MP3ToMP4:
