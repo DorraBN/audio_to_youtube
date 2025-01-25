@@ -7,397 +7,8 @@
   
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="/static/app.css">
 
-
-    <style>
-       
-        body {
-    font-family: Arial, sans-serif;
-    background: linear-gradient(to right, #ec5fff, #847bfe); /* Dégradé du rouge au orange */
-    margin: 0;
-    padding: 0;
-    text-align: center;
-}
-
-
-        .wrapper {
-            display: flex;
-            align-items: flex-start;
-            margin-top: 50px;
-            justify-content: center;
-        }
-
-        /* Vertical line outside the container */
-        .vertical-line {
-            width: 5px;
-            height: 100%;
-            background-color: #333;
-            margin-right: 20px; /* Space between line and container */
-        }
-
-        .container {
-            max-width: 800px;
-            background: #fff;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            padding: 20px;
-            flex: 1; /* Allows container to take remaining space */
-        }
-
-        h1 {
-            font-size: 18px;
-            margin-bottom: 10px;
-        }
-
-        .steps {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 20px;
-        }
-
-        .step {
-            width: 45%;
-            background: #f9f9f9;
-            border: 2px dashed #ccc;
-            border-radius: 10px;
-            padding: 20px;
-            text-align: center;
-            transition: background 0.3s ease;
-        }
-
-        .step:hover {
-            background: #f1f1f1;
-        }
-
-        .step h2 {
-            font-size: 16px;
-            margin-bottom: 20px;
-        }
-
-        .preview-area {
-            margin-top: 10px;
-        }
-
-        .preview-area img,
-        .preview-area audio {
-            max-width: 100%;
-            display: block;
-            margin: 10px auto;
-        }
-
-        .upload-area {
-            margin-bottom: 15px;
-        }
-
-        .upload-area input[type="file"] {
-            display: none;
-        }
-
-        .upload-area label {
-            display: inline-block;
-            background: #9e27ae;
-            color: white;
-            padding: 10px 20px;
-            font-size: 14px;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-
-        .terms {
-            margin-top: 20px;
-            font-size: 12px;
-            color: #777;
-        }
-
-        .action-buttons {
-            margin-top: 20px;
-        }
-.hide{
-    background: #ed97f8;
-            color: white;
-            padding: 10px 15px;
-            font-size: 14px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background 0.3s ease;
-}
-        .action-buttons button {
-            background: #9e27ae;
-            color: white;
-            padding: 10px 15px;
-            font-size: 14px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background 0.3s ease;
-        }
-
-        .action-buttons button:hover {
-            background: #300432;
-        }
-
-        .action-buttons button:disabled {
-            background: #ccc;
-            cursor: not-allowed;
-        }
-
-        .youtube-btn {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-top: 10px;
-        }
-
-        .youtube-btn img {
-            width: 20px;
-            margin-left: 5px;
-        }
-
-        /* Video container styling */
-        .video-container {
-            margin-top: 20px;
-        }
-
-        .upload-btn {
-            position: fixed;
-            top: 10px;
-            right: 10px;
-            padding: 10px 20px;
-            background-color: #9e27ae;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            font-size: 16px;
-            cursor: pointer;
-        }
-        
-        .upload-btn:hover {
-            background-color: #6d1378;
-        }
-
-        .back-btn {
-            display: block;
-            margin-top: 20px;
-            padding: 10px 20px;
-            background-color: #008CBA;
-            color: white;
-            text-align: center;
-            border-radius: 5px;
-            text-decoration: none;
-            width: 350px;
-            margin-left: 580px;
-        }
-
-        .back-btn:hover {
-            background-color: #005f6b;
-        }
-
-        /* Style for the 'x' red button */
-        .image-container {
-            position: relative;
-            display: inline-block;
-        }
-
-        .delete-btn {
-            position: absolute;
-            top: 5px;
-            right: 5px;
-            background-color: red;
-            color: white;
-            border: none;
-            border-radius: 50%;
-            width: 20px;
-            height: 20px;
-            text-align: center;
-            font-size: 16px;
-            cursor: pointer;
-        }
-        .uploadtoy{
-            margin-top: 50px;
-            background: #a138d1;
-            color: white;
-            padding: 10px 15px;
-            font-size: 14px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background 0.3s ease;
-        }
-        #progressbar {
-  list-style-type: none;
-  padding: 0;
-  display: block; /* Passer en mode bloc pour aligner verticalement */
-  position: relative;
-}
-
-#progressbar li {
-  color: #D2D2D2;
-  text-transform: capitalize;
-  font-size: 16px;
-  position: relative;
-  text-align: center;
-  margin-bottom: 30px; /* Espacement entre les étapes */
-}
-
-#progressbar li i {
-  display: block;
-  width: 50px;
-  height: 50px;
-  line-height: 50px;
-  font-size: 32px;
-  background: transparent;
-  border-radius: 50%;
-  margin: 0 auto 10px;
-  color: #D2D2D2;
-  border: 2px solid #ECECEC;
-}
-
-#progressbar li.active i {
-  color: #9e27ae;
-  border-color: #9e27ae;
-}
-
-/* Supprimer la ligne verticale en supprimant cette partie */
-#progressbar li:after {
-  content: none;
-}
-
-#progressbar li:first-child:after {
-  content: none; /* Ne pas afficher la ligne pour la première étape */
-}
-
-#progressbar li.active:after {
-  background: none;
-}
-
-#progressbar li span {
-  display: block;
-  font-size: 14px;
-  color: #D2D2D2;
-}
-
-#progressbar li.active span {
-  color: #9e27ae;
-}
-
-
-.fs-subtitle{
-  font-weight: normal;
-  font-size: 13px;
-  color: #666;
-  margin-bottom: 20px;
-}.title {
-    color: #eee;
-    font-family: sans-serif;
-    font-size: 36px;
-    font-weight: 600;
-    margin-top: 30px;
-  }
-  
-  .subtitle {
-    color: #eee;
-    font-family: sans-serif;
-    font-size: 16px;
-    font-weight: 600;
-    margin-top: 10px;
-  }
-  
-  .input-container {
-    height: 50px;
-    position: relative;
-    width: 50%;
-    margin-left: 180px;
-  }
-  
-  .input-container {
-    display: flex; /* Utilisation de flexbox */
-    align-items: center; /* Aligner verticalement les éléments */
-    height: 50px;
-    position: relative;
-    width: 50%;
-    margin-left: 180px;
-}
-
-.ic1, .ic2 {
-    margin-right: 10px; /* Espace entre l'icône et le champ de saisie */
-}
-
-.input {
-    background-color: #f1f1f2;
-    border-radius: 12px;
-    border: 0;
-    box-sizing: border-box;
-    color: #101010;
-    font-size: 18px;
-    height: 100%;
-    outline: 0;
-    padding: 4px 20px 0;
-    width: 100%;
-}
-
-.cut {
-    background-color: #15172b;
-    border-radius: 10px;
-    height: 20px;
-    left: 20px;
-    position: absolute;
-    top: -20px;
-    transform: translateY(0);
-    transition: transform 200ms;
-    width: 76px;
-}
-
-.cut-short {
-    width: 50px;
-    height: 30px;
-}
-
-.cut-short1 {
-    width: 150px;
-    height: 30px;
-}
-
-.input:focus ~ .cut,
-.input:not(:placeholder-shown) ~ .cut {
-    transform: translateY(8px);
-}
-
-.placeholder {
-    color: #fff;
-    font-family: sans-serif;
-    left: 20px;
-    line-height: 14px;
-    pointer-events: none;
-    position: absolute;
-    transform-origin: 0 50%;
-    transition: transform 200ms, color 200ms;
-    top: 20px;
-}
-
-.input:focus ~ .placeholder,
-.input:not(:placeholder-shown) ~ .placeholder {
-    transform: translateY(-30px) translateX(10px) scale(0.75);
-}
-
-.input:not(:placeholder-shown) ~ .placeholder {
-    color: #efeff4;
-}
-
-.input:focus ~ .placeholder {
-    color: #dc2f55;
-}
-.terms {
-            margin-top: 20px;
-            font-size: 12px;
-            color: #777;
-        }
-        .action-buttons button:disabled {
-            background: #ccc;
-            cursor: not-allowed;
-        }
-
-    </style>
 </head>
 <body>
 
@@ -429,7 +40,7 @@
             <p>Please upload an image and an MP3 file to create your video.</p>
             <form id="uploadForm" action="/" method="post" enctype="multipart/form-data">
                 <div class="input-container ic2">
-    <!-- Icone avant le champ de saisie -->
+
     <i class="fa fa-video" style="margin-right: 10px;"></i>
     <input type="text" name="video_name" class="input" required />
     <div class="cut cut-short"></div>
@@ -437,7 +48,7 @@
 </div>
 <br><br>
 <div class="input-container ic2">
-    <!-- Icone avant le champ de description -->
+
     <i class="fa fa-pencil-alt" style="margin-right: 10px;"></i>
     <textarea name="description" class="input"></textarea><br><br>
     <div class="cut cut-short1"></div>
@@ -476,37 +87,14 @@
                 <progress id="progressBar" value="0" max="100"></progress>
                 <span id="progressText">0%</span>
             </div>
-            <script>
-                function updateProgressBar(progress) {
-                    const progressBar = document.getElementById("progressBar");
-                    const progressText = document.getElementById("progressText");
-                    progressBar.value = progress;
-                    progressText.textContent = progress + "%";
-                }
-            
-                function fetchProgress() {
-                    fetch("/get_progress")
-                        .then(response => response.json())
-                        .then(data => {
-                            updateProgressBar(data.progress);
-                            if (data.progress < 100) {
-                                setTimeout(fetchProgress, 1000); // Met à jour toutes les secondes
-                            }
-                        });
-                }
-            
-                // Quand le bouton de conversion est cliqué
-                document.getElementById("convertButton").addEventListener("click", function() {
-                    // Lancer la progression
-                    fetchProgress();
-                });
-            </script>
-            <!-- Video preview section -->
-            <h1 style="margin-left:590px">{{ video_filename }}</h1>
+       
+           
+           
 
 
 
             <div id="videoContainer" class="video-container" >
+                <h1 style="margin-left:590px" id="filename">{{ video_filename }}</h1>
                 <video width="800" height="600" controls>
                     <source src="{{ video_url }}" type="video/mp4">
                     Votre navigateur ne supporte pas la vidéo HTML5.
@@ -531,6 +119,28 @@
     </div>
 
     <script>
+           function updateProgressBar(progress) {
+                    const progressBar = document.getElementById("progressBar");
+                    const progressText = document.getElementById("progressText");
+                    progressBar.value = progress;
+                    progressText.textContent = progress + "%";
+                }
+            
+                function fetchProgress() {
+                    fetch("/get_progress")
+                        .then(response => response.json())
+                        .then(data => {
+                            updateProgressBar(data.progress);
+                            if (data.progress < 100) {
+                                setTimeout(fetchProgress, 1000); // Met à jour toutes les secondes
+                            }
+                        });
+                }
+            
+                document.getElementById("convertButton").addEventListener("click", function() {
+               
+                    fetchProgress();
+                });
         const termsCheckbox = document.getElementById('termsCheckbox');
         const convertButton = document.getElementById('uploadtoy');
 
@@ -552,7 +162,7 @@ function moveToStep(step) {
         // Preview the uploaded image
         function previewImage(event) {
             const imagePreview = document.getElementById('imagePreview');
-            imagePreview.innerHTML = ''; // Clear previous preview
+            imagePreview.innerHTML = ''; 
 
             const file = event.target.files[0];
             if (file) {
@@ -570,8 +180,8 @@ function moveToStep(step) {
                     deleteBtn.classList.add('delete-btn');
                     deleteBtn.textContent = 'X';
                     deleteBtn.onclick = function() {
-                        imagePreview.removeChild(imageContainer); // Remove the image from the container
-                        document.getElementById('imageUpload').value = ''; // Reset the file input
+                        imagePreview.removeChild(imageContainer); 
+                        document.getElementById('imageUpload').value = ''; 
                     };
 
                     imageContainer.appendChild(img);
@@ -614,31 +224,27 @@ function moveToStep(step) {
     <script>
         // Function to set the active step
         function setActiveStep(stepId) {
-            // Remove active class from all steps
+            
             const steps = document.querySelectorAll('#progressbar li');
             steps.forEach(step => step.classList.remove('active'));
     
-            // Add active class to the clicked step
             const activeStep = document.getElementById(stepId);
             activeStep.classList.add('active');
         }
     
-        // Event listener for the image upload input
         document.getElementById('imageUpload').addEventListener('click', function() {
             setActiveStep('imageUploadStep');
         });
     
-        // Event listener for the audio upload input
         document.getElementById('audioUpload').addEventListener('click', function() {
             setActiveStep('audioUploadStep');
         });
     
-        // Event listener for the video creation step
+
         document.getElementById('convertButton').addEventListener('click', function() {
             setActiveStep('createVideoStep');
         });
     
-        // Event listener for the video upload step
         document.getElementById('uploadtoy').addEventListener('click', function() {
             setActiveStep('uploadVideoStep');
         });

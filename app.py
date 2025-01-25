@@ -176,13 +176,11 @@ def index():
 
     return render_template("app.html")
 
-# Route pour afficher la vidéo générée
 @app.route("/video/<video_filename>")
 def display_video(video_filename):
     video_url = url_for('static', filename=f'videos/{video_filename}')
     return render_template("app.html", video_url=video_url, video_filename=video_filename)
 
-# Redirection OAuth2
 @app.route("/oauth2callback")
 def oauth2callback():
     flow = InstalledAppFlow.from_client_secrets_file(CLIENT_SECRETS_FILE, SCOPES)
@@ -193,11 +191,11 @@ def oauth2callback():
     return redirect(auth_url)
 @app.route("/get_progress")
 def get_progress():
-    # Simuler la progression (exemple simple avec le temps)
-    progress = int(time.time()) % 100  # Exemple simple de progression
+  
+    progress = int(time.time()) % 100  
     return jsonify({"progress": progress})
 
-# Simuler la progression (vous pouvez ajuster selon la logique de votre projet)
+
 
 
 if __name__ == "__main__":
