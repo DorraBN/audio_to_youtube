@@ -189,17 +189,80 @@ def index():
 def display_video(video_filename):
     video_url = url_for('static', filename=f'videos/{video_filename}')
     return render_template("app.html", video_url=video_url, video_filename=video_filename)
-
-
-
 @app.route("/oauth2callback")
 def oauth2callback():
     flow = InstalledAppFlow.from_client_secrets_file(CLIENT_SECRETS_FILE, SCOPES)
     redirect_uri = f"{request.scheme}://{request.host}/oauth2callback"
     flow.redirect_uri = redirect_uri
 
-    auth_url, _ = flow.authorization_url(prompt='consent')
-    return jsonify({"oauth_url": auth_url})
+    code = request.args.get('code')
+    if not code:
+        # Étape 1 : Générer l'URL OAuth
+        auth_url, _ = flow.authorization_url(prompt='consent')
+        return jsonify({"oauth_url": auth_url})  # Fournir l'URL OAuth
+
+    try:
+        # Étape 2 : Traiter l'authentification
+        flow.fetch_token(code=code)
+        credentials = flow.credentials
+
+        # Enregistrer les credentials dans un fichier local
+        with open("token.json", "w") as token_file:
+            token_file.write(credentials.to_json())
+
+        # Une fois authentifié, uploader la vidéo
+        youtube = get_authenticated_service()
+
+        # Recherche de la vidéo générée automatiquement dans le dossier UPLOAD_FOLDER
+        video_folder = app.config['UPLOAD_FOLDER']
+        video_files = [f for f in os.listdir(video_folder) if f.endswith(".mp4")]
+
+        if not video_files:
+            return "Aucune vidéo générée n'a été trouvée.", 400
+
+        # On prend le dernier fichier généré
+        video_filename = sorted(video_files, key=lambda x: os.path.getmtime(os.path.join(video_folder, x)))[-1]
+        video_path = os.path.join(video_folder, video_filename)
+
+        # Détails de la vidéo
+        body = {
+            'snippet': {
+                'title': "Titre de la vidéo générée automatiquement",
+                'description': "Description de la vidéo générée automatiquement",
+                'tags': ["auto", "generated", "video"],
+                'categoryId': '22'  # Catégorie de la vidéo
+            },
+            'status': {
+                'privacyStatus': 'private'  # Modifier à 'public' si nécessaire
+            }
+        }
+
+        media_body = MediaFileUpload(video_path, chunksize=256 * 1024, resumable=True)
+        insert_request = youtube.videos().insert(
+            part="snippet,status",
+            body=body,
+            media_body=media_body
+        )
+
+        response = None
+        while response is None:
+            status, response = insert_request.next_chunk()
+            if status:
+                print(f"Progression de l'upload : {int(status.progress() * 100)}%")
+
+        # Vérifiez si l'upload est réussi
+        if 'id' in response:
+            video_id = response['id']
+            youtube_url = f"https://www.youtube.com/watch?v={video_id}"
+            print(f"Vidéo uploadée avec succès : {youtube_url}")
+            return redirect(youtube_url)  # Redirection vers la vidéo sur YouTube
+        else:
+            return "Une erreur est survenue lors de l'upload.", 500
+
+    except Exception as e:
+        print(f"Erreur lors de l'authentification ou de l'upload : {e}")
+        return f"Une erreur est survenue : {str(e)}", 500
+
 
 @app.route("/get_progress")
 def get_progress():
