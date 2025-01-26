@@ -150,6 +150,9 @@ class MP3ToMP4:
 @app.route("/", methods=["GET", "POST"])
 def index():
     if request.method == "POST":
+        video_name = request.form.get("video_name")
+        description = request.form.get("description", "No description provided.")
+        
         audio = request.files["audio"]
         if not audio.filename.endswith('.mp3'):
             return "Le fichier doit être au format MP3", 400
@@ -170,9 +173,7 @@ def index():
             img.save(img_path)
             image_paths.append(img_path)
 
-        video_name = request.form['video_name']
         video_filename = f"{video_name}.mp4"
-
         video_path_name = os.path.join(app.config['UPLOAD_FOLDER'], video_filename)
 
         try:
@@ -181,9 +182,11 @@ def index():
         except ValueError as e:
             return str(e), 400
 
-        return redirect(url_for('display_video', video_filename=video_filename))
+        # Redirect to display the video
+        return redirect(url_for('display_video', video_filename=video_filename, title=video_name, description=description))
 
     return render_template("app.html")
+
 
 @app.route("/video/<video_filename>")
 def display_video(video_filename):
