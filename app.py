@@ -23,41 +23,37 @@ SCOPES = ["https://www.googleapis.com/auth/youtube.upload"]
 # Fonction pour obtenir un service authentifié avec l'API YouTube
 def get_authenticated_service():
     credentials = None
-
-    if os.path.exists("token.json"):
-        credentials = Credentials.from_authorized_user_file("token.json", SCOPES)
-
-    if not credentials or not credentials.valid:
-        if credentials and credentials.expired and credentials.refresh_token:
-            credentials.refresh(Request())
-        else:
-            flow = InstalledAppFlow.from_client_secrets_file(CLIENT_SECRETS_FILE, SCOPES)
-            credentials = flow.run_local_server(port=0)
-
-        with open("token.json", "w") as token_file:
-            token_file.write(credentials.to_json())
-
     try:
+        if os.path.exists("token.json"):
+            credentials = Credentials.from_authorized_user_file("token.json", SCOPES)
+
+        if not credentials or not credentials.valid:
+            if credentials and credentials.expired and credentials.refresh_token:
+                credentials.refresh(Request())
+            else:
+                flow = InstalledAppFlow.from_client_secrets_file(CLIENT_SECRETS_FILE, SCOPES)
+                credentials = flow.run_local_server(port=0)
+
+            with open("token.json", "w") as token_file:
+                token_file.write(credentials.to_json())
+
         youtube = build("youtube", "v3", credentials=credentials)
         return youtube
     except Exception as e:
-        print(f"Erreur lors de la connexion à l'API YouTube : {e}")
+        print(f"Erreur d'authentification YouTube : {e}")
         return None
 
-@app.route("/upload_youtube/<video_filename>", methods=["POST"])
 @app.route("/upload_youtube/<video_filename>", methods=["POST"])
 def upload_video(video_filename):
     try:
         title = request.form.get("title", "Titre par défaut")
         description = request.form.get("description", "Description par défaut")
-
         video_path = os.path.join(app.config['UPLOAD_FOLDER'], video_filename)
 
         if not os.path.exists(video_path):
             return "Le fichier vidéo n'existe pas.", 400
 
         youtube = get_authenticated_service()
-
         if youtube is None:
             return "Erreur d'authentification YouTube. Veuillez vous reconnecter.", 500
 
@@ -84,20 +80,63 @@ def upload_video(video_filename):
         while response is None:
             status, response = insert_request.next_chunk()
             if status:
-                progress = int(status.progress() * 100)
-                print(f"Upload progress: {progress}%")
-                return jsonify({"progress": progress})  # Envoyer un retour de progrès en temps réel
-        
-        print("Réponse YouTube :", response)
+                print(f"Progression de l'upload : {int(status.progress() * 100)}%")
 
         if 'id' in response:
-            return f"Vidéo {response['id']} uploadée avec succès!"
+            return jsonify({"message": "Vidéo uploadée avec succès !", "video_id": response['id']})
         else:
             return "Une erreur est survenue lors de l'upload de la vidéo.", 500
-
     except Exception as e:
         print(f"Erreur lors de l'upload de la vidéo : {e}")
-        return f"Une erreur est survenue : {str(e)}", 500
+        return f"Erreur : {str(e)}", 500
+
+
+@app.route("/", methods=["GET", "POST"])
+def index():
+    if request.method == "POST":
+        try:
+            video_name = request.form.get("video_name")
+            audio = request.files["audio"]
+            images = request.files.getlist("images")
+
+            if not audio.filename.endswith('.mp3'):
+                return "Le fichier doit être au format MP3", 400
+
+            audio_folder = os.path.join(app.config['UPLOAD_FOLDER'], 'audio')
+            os.makedirs(audio_folder, exist_ok=True)
+
+            audio_path = os.path.join(audio_folder, audio.filename)
+            audio.save(audio_path)
+
+            folder_path = os.path.join(app.config['UPLOAD_FOLDER'], 'images')
+            os.makedirs(folder_path, exist_ok=True)
+
+            image_paths = []
+            for img in images:
+                img_path = os.path.join(folder_path, img.filename)
+                img.save(img_path)
+                image_paths.append(img_path)
+
+            video_filename = f"{video_name}.mp4"
+            video_path_name = os.path.join(app.config['UPLOAD_FOLDER'], video_filename)
+
+            mp3_to_mp4 = MP3ToMP4(folder_path, audio_path, video_path_name, image_paths)
+            mp3_to_mp4.combine_audio()
+
+            return redirect(url_for('display_video', video_filename=video_filename))
+        except ValueError as e:
+            return str(e), 400
+        except Exception as e:
+            print(f"Erreur dans la création de la vidéo : {e}")
+            return "Une erreur est survenue lors du traitement.", 500
+
+    return render_template("app.html")
+
+
+@app.route("/video/<video_filename>")
+def display_video(video_filename):
+    video_url = url_for('static', filename=f'videos/{video_filename}')
+    return render_template("app.html", video_url=video_url, video_filename=video_filename)
 
 
 # Classe pour transformer un fichier MP3 en vidéo MP4 avec des images
@@ -146,52 +185,6 @@ class MP3ToMP4:
         final_video = video.set_audio(audio)
         final_video.write_videofile(self.video_path_name, fps=30)
 
-# Route principale pour la création de vidéo MP3 + images
-@app.route("/", methods=["GET", "POST"])
-def index():
-    if request.method == "POST":
-        video_name = request.form.get("video_name")
-        description = request.form.get("description", "No description provided.")
-        
-        audio = request.files["audio"]
-        if not audio.filename.endswith('.mp3'):
-            return "Le fichier doit être au format MP3", 400
-
-        audio_folder = os.path.join(app.config['UPLOAD_FOLDER'], 'audio')
-        os.makedirs(audio_folder, exist_ok=True)
-
-        audio_path = os.path.join(audio_folder, audio.filename)
-        audio.save(audio_path)
-
-        images = request.files.getlist("images")
-        folder_path = os.path.join(app.config['UPLOAD_FOLDER'], 'images')
-        os.makedirs(folder_path, exist_ok=True)
-
-        image_paths = []
-        for img in images:
-            img_path = os.path.join(folder_path, img.filename)
-            img.save(img_path)
-            image_paths.append(img_path)
-
-        video_filename = f"{video_name}.mp4"
-        video_path_name = os.path.join(app.config['UPLOAD_FOLDER'], video_filename)
-
-        try:
-            mp3_to_mp4 = MP3ToMP4(folder_path, audio_path, video_path_name, image_paths)
-            mp3_to_mp4.combine_audio()
-        except ValueError as e:
-            return str(e), 400
-
-        # Redirect to display the video
-        return redirect(url_for('display_video', video_filename=video_filename, title=video_name, description=description))
-
-    return render_template("app.html")
-
-
-@app.route("/video/<video_filename>")
-def display_video(video_filename):
-    video_url = url_for('static', filename=f'videos/{video_filename}')
-    return render_template("app.html", video_url=video_url, video_filename=video_filename)
 @app.route("/oauth2callback")
 def oauth2callback():
     flow = InstalledAppFlow.from_client_secrets_file(CLIENT_SECRETS_FILE, SCOPES)
@@ -258,13 +251,19 @@ def oauth2callback():
             video_id = response['id']
             youtube_url = f"https://www.youtube.com/watch?v={video_id}"
             print(f"Vidéo uploadée avec succès : {youtube_url}")
-            return redirect(youtube_url)  # Redirection vers la vidéo sur YouTube
+
+            # Afficher un bloc avec l'URL et un bouton pour créer une nouvelle vidéo
+            return render_template(
+                "video_success.html",
+                youtube_url=youtube_url
+            )
         else:
             return "Une erreur est survenue lors de l'upload.", 500
 
     except Exception as e:
         print(f"Erreur lors de l'authentification ou de l'upload : {e}")
         return f"Une erreur est survenue : {str(e)}", 500
+
 
 
 @app.route("/get_progress")
